@@ -1,0 +1,22 @@
+{
+  "model_type": "lstm",
+  "window_length": 30,
+  "num_features": 66,
+  "training_samples": 194,
+  "validation_samples": 41,
+  "test_samples": 43,
+  "epochs_trained": 44,
+  "final_train_loss": 0.5168295502662659,
+  "final_val_loss": 0.6030375361442566,
+  "final_train_auc": 0.8076063394546509,
+  "final_val_auc": 0.7910627722740173,
+  "best_val_auc": 0.8236715197563171,
+  "batch_size": 12,
+  "learning_rate": 0.0003,
+  "lstm_units": 256,
+  "num_layers": 3,
+  "dropout_rate": 0.4,
+  "balanced_classes": true,
+  "augmentation": true,
+  "timestamp": "2025-11-28T23:44:07.246964"
+}

@@ -1,0 +1,246 @@
+Silent Screams - Complete Directory Structure
+==============================================
+
+silent-screams/
+│
+├── 📄 Core Application Files (Python)
+│   ├── app.py                      [~450 lines] Main Streamlit GUI application
+│   ├── keypoint_extractor.py       [~300 lines] MediaPipe pose estimation
+│   ├── models.py                   [~450 lines] Neural network architectures
+│   ├── inference.py                [~350 lines] Real-time monitoring engine
+│   ├── dataset_utils.py            [~400 lines] Data preprocessing utilities
+│   ├── train_lstm.py               [~300 lines] Model training pipeline
+│   ├── sound_utils.py              [~250 lines] Cross-platform audio alerts
+│   └── collect_data.py             [~200 lines] Data collection helper
+│
+├── 📚 Documentation Files
+│   ├── README.md                   [~600 lines] Complete documentation
+│   ├── QUICKSTART.md               [~250 lines] 5-minute setup guide
+│   ├── PROJECT_SUMMARY.md          [~200 lines] Technical overview
+│   ├── INDEX.md                    [~300 lines] Navigation guide
+│   ├── TESTING_CHECKLIST.md        [~400 lines] Comprehensive testing
+│   ├── DEPLOYMENT_COMPLETE.md      [~350 lines] Deployment summary
+│   └── DIRECTORY_STRUCTURE.txt     This file
+│
+├── ⚙️ Configuration & Setup
+│   ├── requirements.txt            Python dependencies (12 packages)
+│   ├── setup.bat                   Windows automated installer
+│   ├── setup.sh                    Unix/Linux/macOS installer
+│   ├── verify_setup.py             Installation verification script
+│   ├── .gitignore                  Git ignore rules
+│   └── LICENSE                     MIT license with ethical notice
+│
+├── 📁 models/                      Trained model files directory
+│   ├── .gitkeep                    Placeholder file
+│   └── mock_model.h5               [Auto-generated] Demo model
+│
+├── 📁 venv/                        [Created by setup] Virtual environment
+│   ├── Scripts/                    (Windows) or bin/ (Unix)
+│   ├── Lib/                        Python packages
+│   └── ...
+│
+├── 📁 data/                        [Optional] Training data directory
+│   ├── normal/                     Normal behavior videos
+│   ├── abnormal/                   Abnormal behavior videos
+│   └── training_data.npz           Processed training dataset
+│
+└── 📁 logs/                        [Created by training] TensorBoard logs
+    └── [model_name]/               Training logs per model
+
+
+File Categories by Purpose
+===========================
+
+🎯 Entry Points (Run These)
+────────────────────────────
+app.py                  → Launch GUI application
+train_lstm.py           → Train a model
+collect_data.py         → Collect training data
+verify_setup.py         → Verify installation
+setup.bat / setup.sh    → Automated setup
+
+
+🧩 Core Modules (Import These)
+────────────────────────────────
+keypoint_extractor.py   → Pose estimation functions
+models.py               → Model architectures
+inference.py            → Real-time monitoring classes
+dataset_utils.py        → Data preprocessing functions
+sound_utils.py          → Audio playback functions
+
+
+📖 Documentation (Read These)
+──────────────────────────────
+README.md               → Start here for complete docs
+QUICKSTART.md           → 5-minute quick start
+PROJECT_SUMMARY.md      → Technical overview
+INDEX.md                → Navigation guide
+TESTING_CHECKLIST.md    → Testing procedures
+DEPLOYMENT_COMPLETE.md  → Deployment summary
+
+
+⚙️ Configuration (Edit These)
+──────────────────────────────
+requirements.txt        → Add/remove dependencies
+.gitignore              → Exclude files from git
+
+
+File Sizes (Approximate)
+========================
+
+Small (<100 lines)
+──────────────────
+.gitignore
+LICENSE
+models/.gitkeep
+setup.bat
+setup.sh
+
+Medium (100-300 lines)
+──────────────────────
+collect_data.py
+sound_utils.py
+verify_setup.py
+QUICKSTART.md
+PROJECT_SUMMARY.md
+
+Large (300-500 lines)
+─────────────────────
+keypoint_extractor.py
+train_lstm.py
+inference.py
+dataset_utils.py
+models.py
+app.py
+INDEX.md
+TESTING_CHECKLIST.md
+DEPLOYMENT_COMPLETE.md
+
+Very Large (500+ lines)
+───────────────────────
+README.md
+
+
+Dependencies Between Files
+==========================
+
+app.py depends on:
+  → keypoint_extractor.py
+  → models.py
+  → inference.py
+  → sound_utils.py
+
+inference.py depends on:
+  → keypoint_extractor.py
+  → models.py
+
+train_lstm.py depends on:
+  → models.py
+  → dataset_utils.py
+
+collect_data.py depends on:
+  → keypoint_extractor.py
+  → dataset_utils.py
+
+All other files are independent.
+
+
+Typical Workflow
+================
+
+1. Setup
+   └── Run: setup.bat (Windows) or setup.sh (Unix)
+   └── Run: python verify_setup.py
+
+2. Demo Mode (No Training)
+   └── Run: streamlit run app.py
+   └── Load mock model
+   └── Test live monitoring
+
+3. Training Mode
+   └── Collect videos → data/normal/ and data/abnormal/
+   └── Run: python collect_data.py
+   └── Run: python train_lstm.py
+   └── Model saved → models/
+
+4. Production Mode
+   └── Run: streamlit run app.py
+   └── Load trained model
+   └── Start monitoring
+
+
+Generated Files (Not in Repository)
+====================================
+
+During Setup:
+  venv/                 Virtual environment
+  __pycache__/          Python bytecode cache
+
+During Usage:
+  models/mock_model.h5  Demo model
+  alarm.wav             Generated beep sound
+  *.pyc                 Compiled Python files
+
+During Training:
+  logs/                 TensorBoard logs
+  models/*.h5           Trained models
+  models/*_metadata.json Model metadata
+
+During Data Collection:
+  data/*.npz            Training datasets
+
+
+Total Project Size
+==================
+
+Source Code:      ~3,500 lines
+Documentation:    ~2,500 lines
+Total:            ~6,000 lines
+
+Files:            20+ files
+Modules:          8 Python modules
+Dependencies:     12 packages
+
+Estimated Disk Space:
+  Source:           ~500 KB
+  Dependencies:     ~2 GB (with TensorFlow)
+  Models:           ~5-50 MB each
+  Training Data:    ~10-100 MB per dataset
+
+
+Quick Reference Commands
+========================
+
+# Setup
+python -m venv venv
+venv\Scripts\activate          # Windows
+source venv/bin/activate       # Unix
+pip install -r requirements.txt
+
+# Verify
+python verify_setup.py
+
+# Run Application
+streamlit run app.py
+
+# Test Modules
+python keypoint_extractor.py
+python dataset_utils.py
+python models.py
+python inference.py
+python sound_utils.py
+
+# Collect Data
+python collect_data.py --normal_videos "./data/normal/*.mp4" --abnormal_videos "./data/abnormal/*.mp4"
+
+# Train Model
+python train_lstm.py --data_path training_data.npz --epochs 50
+
+# Clean Up
+deactivate                     # Exit virtual environment
+rm -rf __pycache__            # Remove cache
+rm -rf venv                   # Remove virtual environment
+
+
+End of Directory Structure
+===========================

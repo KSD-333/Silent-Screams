@@ -1,0 +1,25 @@
+# Silent Screams - ML-based Monitoring System
+# Core dependencies for Python 3.13 on Windows
+
+# GUI Framework
+streamlit>=1.39.0
+
+# Computer Vision
+opencv-python>=4.10.0
+
+# Machine Learning
+tensorflow>=2.18.0
+numpy>=1.26.0
+pandas>=2.2.0
+
+# Audio playback (Python 3.13 compatible)
+pygame>=2.6.0
+
+# Utilities
+scipy>=1.14.0
+Pillow>=10.4.0
+scikit-learn>=1.5.0
+tqdm>=4.66.1
+
+# Note: MediaPipe is not available for Python 3.13 on Windows
+# Pose/gesture detection features will use OpenCV-based alternatives
