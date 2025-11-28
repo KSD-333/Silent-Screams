@@ -11,11 +11,13 @@ Features:
 - Privacy-first local processing
 """
 
+import json
 import os
 import time
 import cv2
 import numpy as np
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 from PIL import Image
 import tempfile
@@ -51,6 +53,29 @@ def init_session_state():
         st.session_state.total_frames = 0
     if 'total_alerts' not in st.session_state:
         st.session_state.total_alerts = 0
+
+
+def save_alerts_to_file(alerts_data):
+    """Save alerts to persistent JSON file."""
+    try:
+        alerts_file = "alerts_history.json"
+        with open(alerts_file, 'w') as f:
+            json.dump(alerts_data, f, indent=2)
+    except Exception as e:
+        st.error(f"Error saving alerts: {str(e)}")
+
+
+def load_alerts_from_file():
+    """Load alerts from persistent JSON file."""
+    try:
+        alerts_file = "alerts_history.json"
+        if os.path.exists(alerts_file):
+            with open(alerts_file, 'r') as f:
+                return json.load(f)
+        return []
+    except Exception as e:
+        st.error(f"Error loading alerts: {str(e)}")
+        return []
 
 
 def load_model_cached(model_path: str):
@@ -159,27 +184,111 @@ def render_alert_banner():
 def add_alert_to_log(confidence: float):
     """Add alert to log."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    st.session_state.alert_log.append({
+    alert_entry = {
         'timestamp': timestamp,
         'confidence': confidence
-    })
+    }
+    
+    # Add to session state
+    st.session_state.alert_log.append(alert_entry)
     st.session_state.total_alerts += 1
     
-    # Keep only last 50 alerts
+    # Keep only last 50 alerts in session
     if len(st.session_state.alert_log) > 50:
         st.session_state.alert_log = st.session_state.alert_log[-50:]
+    
+    # Save to persistent storage
+    all_alerts = load_alerts_from_file()
+    all_alerts.append(alert_entry)
+    save_alerts_to_file(all_alerts)
 
 
 def render_alert_log():
     """Render alert log."""
     if len(st.session_state.alert_log) > 0:
-        st.subheader("Recent Alerts")
+        st.subheader("Recent Alerts (Last 10)")
         
         # Display in reverse chronological order
         for alert in reversed(st.session_state.alert_log[-10:]):
             st.text(f"Alert: {alert['timestamp']} - Confidence: {alert['confidence']:.2%}")
     else:
         st.info("No alerts yet")
+
+
+def render_full_alert_history():
+    """Render full alert history from persistent storage."""
+    all_alerts = load_alerts_from_file()
+    
+    if len(all_alerts) > 0:
+        st.subheader(f"📊 Full Alert History ({len(all_alerts)} total alerts)")
+        
+        # Add some statistics
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Alerts", len(all_alerts))
+        with col2:
+            if len(all_alerts) > 0:
+                avg_confidence = sum(alert['confidence'] for alert in all_alerts) / len(all_alerts)
+                st.metric("Average Confidence", f"{avg_confidence:.1%}")
+        with col3:
+            if len(all_alerts) > 1:
+                first_alert = min(all_alerts, key=lambda x: x['timestamp'])
+                last_alert = max(all_alerts, key=lambda x: x['timestamp'])
+                st.metric("Date Range", f"{first_alert['timestamp'][:10]} to {last_alert['timestamp'][:10]}")
+        
+        # Show last 50 alerts in reverse chronological order
+        st.subheader("Recent Alerts (Last 50)")
+        for alert in reversed(all_alerts[-50:]):
+            st.text(f"Alert: {alert['timestamp']} - Confidence: {alert['confidence']:.2%}")
+        
+        # Option to export alerts
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("📄 Export as JSON"):
+                alerts_json = json.dumps(all_alerts, indent=2)
+                st.download_button(
+                    label="Download Alert History (JSON)",
+                    data=alerts_json,
+                    file_name=f"alert_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                    mime="application/json"
+                )
+        
+        with col2:
+            if st.button("📊 Export as Excel"):
+                # Convert to DataFrame for Excel export
+                df = pd.DataFrame(all_alerts)
+                df['confidence'] = df['confidence'].apply(lambda x: f"{x:.2%}")
+                df = df.rename(columns={'timestamp': 'Alert Timestamp', 'confidence': 'Confidence Level'})
+                
+                # Create Excel file in memory
+                from io import BytesIO
+                buffer = BytesIO()
+                with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                    df.to_excel(writer, sheet_name='Alert History', index=False)
+                    
+                    # Add summary sheet
+                    summary_data = {
+                        'Metric': ['Total Alerts', 'Average Confidence', 'Date Range', 'Export Date'],
+                        'Value': [
+                            len(all_alerts),
+                            f"{sum(float(alert['confidence']) for alert in all_alerts) / len(all_alerts):.1%}" if all_alerts else "N/A",
+                            f"{min(all_alerts, key=lambda x: x['timestamp'])['timestamp'][:10]} to {max(all_alerts, key=lambda x: x['timestamp'])['timestamp'][:10]}" if len(all_alerts) > 1 else (all_alerts[0]['timestamp'][:10] if all_alerts else "N/A"),
+                            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        ]
+                    }
+                    summary_df = pd.DataFrame(summary_data)
+                    summary_df.to_excel(writer, sheet_name='Summary', index=False)
+                
+                buffer.seek(0)
+                st.download_button(
+                    label="Download Alert History (Excel)",
+                    data=buffer,
+                    file_name=f"alert_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+    else:
+        st.info("No alert history found")
 
 
 def live_monitoring_mode(settings: dict):
@@ -620,7 +729,7 @@ def main():
     """, unsafe_allow_html=True)
     
     # Mode selection with tabs
-    tab1, tab2, tab3 = st.tabs(["Home", "Live Monitoring", "Video Analysis"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Home", "Live Monitoring", "Video Analysis", "Alert History"])
     
     with tab1:
         # Welcome section
@@ -719,6 +828,10 @@ def main():
     
     with tab3:
         video_upload_mode(settings)
+    
+    with tab4:
+        st.header("📊 Alert History")
+        render_full_alert_history()
 
 
 if __name__ == "__main__":
